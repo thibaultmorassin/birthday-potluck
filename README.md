@@ -1,36 +1,74 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🎂 Birthday Potluck
 
-## Getting Started
+Petit site semi-public pour l'anniversaire : chaque invité entre un code PIN,
+voit qui apporte quoi (à manger ou à boire), et peut ajouter ou modifier une ligne.
 
-First, run the development server:
+Mobile-first, construit avec :
+
+- [Next.js 16](https://nextjs.org) (App Router, Server Actions)
+- [shadcn/ui](https://ui.shadcn.com) + le registre [Fluid Functionalism](https://www.fluidfunctionalism.com/docs) (`@fluid`)
+- [Supabase](https://supabase.com) pour le stockage
+- Déployé sur [Vercel](https://vercel.com)
+
+## Fonctionnement
+
+1. L'invité arrive sur l'écran PIN (`/pin`). Le bon code pose un cookie de
+   session (30 jours) — pas de « vraie » sécurité, c'est voulu.
+2. La page d'accueil liste les contributions dans un tableau **Qui / Quoi**.
+3. « Ajouter » ouvre un `ResponsiveDialog` : Dialog (Fluid) sur desktop,
+   Drawer en bas d'écran sur mobile.
+4. Taper une ligne ouvre d'abord un `AlertDialog` de confirmation
+   (« Modifier cette ligne ? »), puis le formulaire pré-rempli.
+
+Toute la base est accédée côté serveur avec la clé service role ; la table a
+RLS activé sans policy, donc la clé anon ne donne accès à rien.
+
+## Setup
+
+### 1. Supabase
+
+Crée un projet sur [supabase.com](https://supabase.com), puis exécute
+[`supabase/schema.sql`](supabase/schema.sql) dans le SQL editor.
+
+### 2. Variables d'environnement
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+cp .env.example .env.local
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+| Variable | Description |
+| --- | --- |
+| `NEXT_PUBLIC_SUPABASE_URL` | URL du projet (Settings → API) |
+| `SUPABASE_SERVICE_ROLE_KEY` | Clé service role (Settings → API, garde-la secrète) |
+| `PARTY_PIN` | Le code à donner aux invités (défaut : `1234`) |
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Changer `PARTY_PIN` invalide toutes les sessions existantes.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 3. Lancer en local
 
-## Learn More
+```bash
+npm install
+npm run dev
+```
 
-To learn more about Next.js, take a look at the following resources:
+### 4. Déployer sur Vercel
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+npx vercel
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Ajoute les trois variables d'environnement dans les settings du projet Vercel
+(Production), puis redeploie. C'est tout.
 
-## Deploy on Vercel
+## Composants UI
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Le registre Fluid Functionalism est configuré dans `components.json` sous le
+namespace `@fluid` :
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+npx shadcn@latest add @fluid/button        # composants Fluid
+npx shadcn@latest add alert-dialog         # composants shadcn classiques
+```
+
+`src/components/responsive-dialog.tsx` combine le Dialog Fluid (desktop) et le
+Drawer shadcn/vaul (mobile) derrière une seule API.
