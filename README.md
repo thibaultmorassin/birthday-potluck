@@ -14,11 +14,16 @@ Mobile-first, construit avec :
 
 1. L'invité arrive sur l'écran PIN (`/pin`). Le bon code pose un cookie de
    session (30 jours) — pas de « vraie » sécurité, c'est voulu.
-2. La page d'accueil liste les contributions dans un tableau **Qui / Quoi**.
-3. « Ajouter » ouvre un `ResponsiveDialog` : Dialog (Fluid) sur desktop,
-   Drawer en bas d'écran sur mobile.
-4. Taper une ligne ouvre d'abord un `AlertDialog` de confirmation
-   (« Modifier cette ligne ? »), puis le formulaire pré-rempli.
+2. Écran de profils façon Netflix (`/profiles`) : avatars générés par
+   [DiceBear](https://www.dicebear.com) (style *fun-emoji*, seed = email).
+   On choisit son profil ou on en crée un (juste un email).
+3. La page d'accueil liste les contributions dans un tableau **Qui / Quoi /
+   Type**, triable et filtrable.
+4. « Ajouter » ouvre un `ResponsiveDialog` : Dialog (Fluid) sur desktop,
+   Drawer en bas d'écran sur mobile. Le champ « Qui ? » est pré-rempli
+   depuis le profil et en lecture seule.
+5. Chacun ne peut modifier/supprimer que ses propres lignes : crayon →
+   formulaire direct, corbeille → `AlertDialog` de confirmation.
 
 Toute la base est accédée côté serveur avec la clé publishable ; des policies
 RLS ouvrent select/insert/update (pas de delete) — semi-public, assumé.
@@ -44,6 +49,8 @@ cp .env.example .env.local
 
 Pour une base existante créée avant l'ajout des catégories, exécute
 [`supabase/migration-category-and-policies.sql`](supabase/migration-category-and-policies.sql).
+Pour les profils (table `users` + colonne `user_id` + policies), exécute
+[`supabase/migration-profiles.sql`](supabase/migration-profiles.sql).
 
 Changer `PARTY_PIN` invalide toutes les sessions existantes.
 

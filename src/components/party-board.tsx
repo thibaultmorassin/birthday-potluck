@@ -23,25 +23,34 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { CATEGORIES } from "@/lib/categories";
-import { ArrowDown, ArrowUp, Pencil, Plus } from "lucide-react";
-import { useCallback, useMemo, useState } from "react";
+import { deleteContribution } from "@/app/actions";
+import { ArrowDown, ArrowUp, Pencil, Plus, Trash2 } from "lucide-react";
+import { useCallback, useMemo, useState, useTransition } from "react";
+import { toast } from "sonner";
 import { Enums, Tables } from "../../database.types";
 import { TabItem, Tabs, TabsList } from "./ui/tabs";
 
 interface PartyBoardProps {
   contributions: Tables<"contributions">[];
+  currentUserId: string;
+  guestName: string;
 }
 
 type SortKey = "guest_name" | "item" | "category";
 type SortDir = "asc" | "desc";
 type Filter = "all" | Enums<"contribution_category">;
 
-export function PartyBoard({ contributions }: PartyBoardProps) {
+export function PartyBoard({
+  contributions,
+  currentUserId,
+  guestName,
+}: PartyBoardProps) {
   const [addOpen, setAddOpen] = useState(false);
-  // Two-step edit: AlertDialog confirmation first, then the form dialog.
-  const [pendingEdit, setPendingEdit] =
-    useState<Tables<"contributions"> | null>(null);
+  // Own rows open the filled form directly; deletion asks for confirmation.
   const [editing, setEditing] = useState<Tables<"contributions"> | null>(null);
+  const [pendingDelete, setPendingDelete] =
+    useState<Tables<"contributions"> | null>(null);
+  const [isDeleting, startDelete] = useTransition();
 
   const [filter, setFilter] = useState<Filter>("all");
   const [sortKey, setSortKey] = useState<SortKey | null>(null);
@@ -49,6 +58,20 @@ export function PartyBoard({ contributions }: PartyBoardProps) {
 
   const closeAdd = useCallback(() => setAddOpen(false), []);
   const closeEdit = useCallback(() => setEditing(null), []);
+
+  const confirmDelete = () => {
+    if (!pendingDelete) return;
+    const id = pendingDelete.id;
+    startDelete(async () => {
+      const result = await deleteContribution(id);
+      if (result.ok) {
+        toast.success("C'est supprimé !");
+      } else {
+        toast.error(result.error);
+      }
+      setPendingDelete(null);
+    });
+  };
 
   const toggleSort = (key: SortKey) => {
     if (sortKey !== key) {
@@ -139,13 +162,13 @@ export function PartyBoard({ contributions }: PartyBoardProps) {
                   Quoi {sortIndicator("item")}
                 </SortButton>
               </TableHead>
-              <TableHead className="w-[110px] p-0 md:w-[140px]">
+              <TableHead className="w-[104px] p-0 md:w-[140px]">
                 <SortButton onClick={() => toggleSort("category")}>
                   Type {sortIndicator("category")}
                 </SortButton>
               </TableHead>
-              <TableHead className="w-8 md:w-10">
-                <span className="sr-only">Modifier</span>
+              <TableHead className="w-[64px] px-1 md:w-20 md:px-2">
+                <span className="sr-only">Actions</span>
               </TableHead>
             </TableRow>
           </TableHeader>
@@ -153,16 +176,24 @@ export function PartyBoard({ contributions }: PartyBoardProps) {
             {rows.map((c, i) => {
               const category = c.category as Enums<"contribution_category">;
               const categoryData = CATEGORIES[category];
+              const isMine = c.user_id === currentUserId;
               return (
                 <TableRow
                   key={c.id}
                   index={i}
-                  className="cursor-pointer"
-                  onClick={() => setPendingEdit(c)}
+                  className={isMine ? "cursor-pointer" : undefined}
+                  onClick={isMine ? () => setEditing(c) : undefined}
                 >
-                  <TableCell className="py-3 md:py-4">{c.guest_name}</TableCell>
-                  <TableCell className="py-3 md:py-4">{c.item}</TableCell>
-                  <TableCell className="py-3 md:py-4">
+                  <TableCell className="px-2 py-3 md:px-3 md:py-4">
+                    {c.guest_name}
+                    {isMine ? (
+                      <span className="ml-1.5 text-[11px] text-muted-foreground md:text-[12px]">
+                        (toi)
+                      </span>
+                    ) : null}
+                  </TableCell>
+                  <TableCell className="px-2 py-3 md:px-3 md:py-4">{c.item}</TableCell>
+                  <TableCell className="px-2 py-3 md:px-3 md:py-4">
                     <Badge
                       color={categoryData.color}
                       size="sm"
@@ -178,12 +209,34 @@ export function PartyBoard({ contributions }: PartyBoardProps) {
                       {categoryData.emoji} {categoryData.label}
                     </Badge>
                   </TableCell>
-                  <TableCell className="py-3 text-right md:py-4">
-                    <Pencil
-                      size={14}
-                      className="inline-block text-muted-foreground"
-                      aria-hidden
-                    />
+                  <TableCell className="px-1 py-2 text-right md:px-2 md:py-3">
+                    {isMine ? (
+                      <span className="inline-flex items-center gap-0.5">
+                        <Button
+                          variant="ghost"
+                          size="icon-sm"
+                          aria-label="Modifier"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setEditing(c);
+                          }}
+                        >
+                          <Pencil aria-hidden />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon-sm"
+                          aria-label="Supprimer"
+                          className="hover:text-destructive"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setPendingDelete(c);
+                          }}
+                        >
+                          <Trash2 aria-hidden />
+                        </Button>
+                      </span>
+                    ) : null}
                   </TableCell>
                 </TableRow>
               );
@@ -202,56 +255,59 @@ export function PartyBoard({ contributions }: PartyBoardProps) {
         open={addOpen}
         onOpenChange={setAddOpen}
         title="Qu'est-ce que tu apportes ?"
-        description="Dis-nous qui tu es et ce que tu amènes à manger ou à boire."
+        description="Dis-nous ce que tu amènes à manger ou à boire."
       >
-        <ContributionForm onSuccess={closeAdd} />
+        <ContributionForm guestName={guestName} onSuccess={closeAdd} />
       </ResponsiveDialog>
-
-      <AlertDialog
-        open={pendingEdit !== null}
-        onOpenChange={(open) => {
-          if (!open) setPendingEdit(null);
-        }}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Modifier cette ligne ?</AlertDialogTitle>
-            <AlertDialogDescription>
-              {pendingEdit
-                ? `« ${pendingEdit.guest_name} apporte ${pendingEdit.item} » — tu es sûr de vouloir la modifier ?`
-                : ""}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Annuler</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() => {
-                setEditing(pendingEdit);
-                setPendingEdit(null);
-              }}
-            >
-              Oui, modifier
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
 
       <ResponsiveDialog
         open={editing !== null}
         onOpenChange={(open) => {
           if (!open) setEditing(null);
         }}
-        title="Modifier la ligne"
-        description="Mets à jour qui tu es ou ce que tu apportes."
+        title="Modifier ta ligne"
+        description="Mets à jour ce que tu apportes."
       >
         {editing ? (
           <ContributionForm
             key={editing.id}
             contribution={editing}
+            guestName={guestName}
             onSuccess={closeEdit}
           />
         ) : null}
       </ResponsiveDialog>
+
+      <AlertDialog
+        open={pendingDelete !== null}
+        onOpenChange={(open) => {
+          if (!open && !isDeleting) setPendingDelete(null);
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Supprimer cette ligne ?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {pendingDelete
+                ? `« ${pendingDelete.item} » sera retiré de la liste. Tu pourras toujours le rajouter plus tard.`
+                : ""}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>Annuler</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => {
+                // Keep the dialog open while the action runs.
+                e.preventDefault();
+                confirmDelete();
+              }}
+              disabled={isDeleting}
+            >
+              {isDeleting ? "Suppression…" : "Oui, supprimer"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
@@ -267,7 +323,7 @@ function SortButton({
     <button
       type="button"
       onClick={onClick}
-      className="flex w-full cursor-pointer items-center gap-1 px-3 py-2 text-left text-foreground transition-colors hover:text-muted-foreground"
+      className="flex w-full cursor-pointer items-center gap-1 px-2 py-2 md:px-3 text-left text-foreground transition-colors hover:text-muted-foreground"
     >
       {children}
     </button>

@@ -11,15 +11,17 @@ import { Enums, Tables } from "../../database.types";
 
 interface ContributionFormProps {
   contribution?: Tables<"contributions">;
+  /** Display name of the selected profile — fills the read-only "Qui ?" field. */
+  guestName: string;
   onSuccess: () => void;
 }
 
 export function ContributionForm({
   contribution,
+  guestName,
   onSuccess,
 }: ContributionFormProps) {
   const [state, formAction, pending] = useActionState(saveContribution, null);
-  const [guestName, setGuestName] = useState(contribution?.guest_name ?? "");
   const [item, setItem] = useState(contribution?.item ?? "");
   const [category, setCategory] = useState<Enums<"contribution_category">>(
     (contribution?.category as Enums<"contribution_category">) ?? "food",
@@ -40,7 +42,7 @@ export function ContributionForm({
         </legend>
         <RadioGroup
           selectedIndex={Object.keys(CATEGORIES).indexOf(category)}
-          className="grid grid-cols-2 gap-2"
+          className="max-w-1/2"
         >
           {(Object.keys(CATEGORIES) as Enums<"contribution_category">[]).map(
             (key, i) => (
@@ -60,16 +62,17 @@ export function ContributionForm({
       ) : null}
       <input type="hidden" name="category" value={category} />
       <InputGroup>
+        {/* Auto-filled from the selected profile; the server derives the
+            name from the session anyway, this field is display-only. */}
         <InputField
           index={0}
           name="guest_name"
           label="Qui ?"
-          placeholder="Ton prénom"
           value={guestName}
-          onChange={setGuestName}
-          autoComplete="name"
-          maxLength={80}
-          required
+          onChange={() => {}}
+          readOnly
+          tabIndex={-1}
+          className="opacity-70"
         />
         <InputField
           index={1}
@@ -91,7 +94,7 @@ export function ContributionForm({
       <Button
         type="submit"
         loading={pending}
-        disabled={pending || !guestName.trim() || !item.trim()}
+        disabled={pending || !item.trim()}
         className="w-full md:w-auto md:self-end"
       >
         {contribution ? "Enregistrer" : "Ajouter à la liste"}

@@ -143,7 +143,7 @@ const RadioGroup = forwardRef<HTMLDivElement, RadioGroupProps>(
         }}
         role="radiogroup"
         className={cn(
-          "relative flex flex-col w-72 max-w-full select-none",
+          "relative flex flex-col max-w-full select-none",
           className,
         )}
         {...props}

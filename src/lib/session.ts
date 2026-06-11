@@ -34,3 +34,23 @@ export async function isAuthenticated(): Promise<boolean> {
   const cookieStore = await cookies();
   return cookieStore.get(COOKIE_NAME)?.value === sessionToken();
 }
+
+// Selected profile (Netflix-like picker). Only the user id is stored;
+// the row is re-fetched on each request so a deleted profile logs out.
+const PROFILE_COOKIE = "party_profile";
+
+export async function setProfileId(userId: string): Promise<void> {
+  const cookieStore = await cookies();
+  cookieStore.set(PROFILE_COOKIE, userId, {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+    maxAge: THIRTY_DAYS,
+    path: "/",
+  });
+}
+
+export async function getProfileId(): Promise<string | null> {
+  const cookieStore = await cookies();
+  return cookieStore.get(PROFILE_COOKIE)?.value ?? null;
+}
