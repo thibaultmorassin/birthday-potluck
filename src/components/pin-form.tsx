@@ -39,7 +39,7 @@ export function PinForm() {
         disabled={pending}
         className="w-full"
       >
-        Entrer
+        Valider
       </Button>
     </form>
   );

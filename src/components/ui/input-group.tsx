@@ -242,7 +242,7 @@ const InputField = forwardRef<HTMLLabelElement, InputFieldProps>(
             disabled={disabled}
             aria-invalid={!!error || undefined}
             aria-describedby={errorId}
-            className="w-full bg-transparent text-[13px] text-foreground placeholder:text-muted-foreground outline-none font-[inherit]"
+            className="w-full bg-transparent text-base text-foreground placeholder:text-muted-foreground outline-none font-[inherit]"
             style={{ fontVariationSettings: fontWeights.normal }}
             {...props}
           />
