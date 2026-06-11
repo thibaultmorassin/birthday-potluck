@@ -1,7 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
+import { displayName } from "@/lib/avatar";
 import {
   createSession,
   getProfileId,
@@ -9,8 +8,9 @@ import {
   isValidPin,
   setProfileId,
 } from "@/lib/session";
-import { displayName } from "@/lib/avatar";
 import { getSupabase } from "@/lib/supabase";
+import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import type { Tables } from "../../database.types";
 
 export interface ActionState {
@@ -134,7 +134,10 @@ export async function saveContribution(
       .eq("id", id)
       .maybeSingle();
     if (!row || row.user_id !== profile.id) {
-      return { ok: false, error: "Tu ne peux modifier que tes propres lignes." };
+      return {
+        ok: false,
+        error: "Tu ne peux modifier que tes propres lignes.",
+      };
     }
   }
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { saveContribution } from "@/app/actions";
+import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { InputField, InputGroup } from "@/components/ui/input-group";
 import { RadioGroup, RadioItem } from "@/components/ui/radio-group";
@@ -36,6 +37,9 @@ export function ContributionForm({
 
   return (
     <form action={formAction} className="flex flex-col gap-5">
+      {contribution ? (
+        <input type="hidden" name="id" value={contribution.id} />
+      ) : null}
       <fieldset className="flex flex-col gap-1">
         <legend className="pl-3 pb-1 text-[13px] text-muted-foreground">
           Catégorie
@@ -57,9 +61,6 @@ export function ContributionForm({
           )}
         </RadioGroup>
       </fieldset>
-      {contribution ? (
-        <input type="hidden" name="id" value={contribution.id} />
-      ) : null}
       <input type="hidden" name="category" value={category} />
       <InputGroup>
         {/* Auto-filled from the selected profile; the server derives the
@@ -70,9 +71,10 @@ export function ContributionForm({
           label="Qui ?"
           value={guestName}
           onChange={() => {}}
-          readOnly
+          disabled
           tabIndex={-1}
           className="opacity-70"
+          icon={<Avatar name={guestName} />}
         />
         <InputField
           index={1}

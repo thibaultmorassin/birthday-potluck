@@ -20,15 +20,18 @@ export default async function ProfilesPage() {
   }
 
   return (
-    <main className="flex flex-1 flex-col items-center justify-center gap-8 p-6 md:gap-12">
-      <div className="flex flex-col items-center gap-2 text-center md:gap-3">
-        <h1 className="text-2xl font-bold tracking-tight md:text-4xl">
-          Qui est-ce ? 👀
+    <main className="mx-auto w-full max-w-md flex-1 px-4 py-10 md:py-16">
+      <header className="mb-6 flex flex-col gap-2 md:mb-8 md:gap-3">
+        <span className="text-5xl md:text-6xl" aria-hidden>
+          👋
+        </span>
+        <h1 className="text-3xl font-bold tracking-tight md:text-[36px] md:leading-tight">
+          C&apos;est qui ?
         </h1>
-        <p className="text-[13px] text-muted-foreground md:text-[15px]">
-          Choisis ton profil, ou crée le tien.
+        <p className="text-sm text-muted-foreground md:text-base">
+          Retrouve ton profil ou crée le tien — il signera ce que tu apportes.
         </p>
-      </div>
+      </header>
       <ProfilePicker users={data ?? []} />
     </main>
   );

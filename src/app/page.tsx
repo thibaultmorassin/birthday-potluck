@@ -1,9 +1,10 @@
-import Link from "next/link";
-import { redirect } from "next/navigation";
+import { PartyBoard } from "@/components/party-board";
+import { Avatar } from "@/components/ui/avatar";
+import { displayName } from "@/lib/avatar";
 import { getProfileId, isAuthenticated } from "@/lib/session";
 import { getSupabase } from "@/lib/supabase";
-import { avatarUrl, displayName } from "@/lib/avatar";
-import { PartyBoard } from "@/components/party-board";
+import Link from "next/link";
+import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 
@@ -42,14 +43,7 @@ export default async function HomePage() {
           href="/profiles"
           className="group flex items-center gap-2 rounded-full border border-border py-1 pl-1 pr-3 text-[12px] text-muted-foreground transition-colors hover:bg-hover hover:text-foreground md:text-[13px]"
         >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={avatarUrl(profile.email, 48)}
-            alt=""
-            width={24}
-            height={24}
-            className="size-6 rounded-full"
-          />
+          <Avatar name={profile.email} seedSize={48} className="size-6 " />
           {name}
           <span className="text-muted-foreground/60 group-hover:text-muted-foreground">
             · changer

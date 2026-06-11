@@ -1,21 +1,21 @@
 "use client";
 
+import { fontWeights } from "@/lib/font-weight";
+import type { IconComponent } from "@/lib/icon-context";
+import { useShape } from "@/lib/shape-context";
+import { cn } from "@/lib/utils";
 import {
+  createContext,
+  forwardRef,
+  useCallback,
+  useContext,
+  useEffect,
   useRef,
   useState,
-  useCallback,
-  useEffect,
-  createContext,
-  useContext,
-  forwardRef,
-  type ReactNode,
   type HTMLAttributes,
   type InputHTMLAttributes,
+  type ReactNode,
 } from "react";
-import type { IconComponent } from "@/lib/icon-context";
-import { cn } from "@/lib/utils";
-import { fontWeights } from "@/lib/font-weight";
-import { useShape } from "@/lib/shape-context";
 
 interface InputGroupContextValue {
   registerItem: (index: number, element: HTMLLabelElement | null) => void;
@@ -98,7 +98,7 @@ interface InputFieldProps extends Omit<
 > {
   label: string;
   placeholder?: string;
-  icon?: IconComponent;
+  icon?: IconComponent | ReactNode;
   index: number;
   value: string;
   onChange: (value: string) => void;
@@ -151,8 +151,8 @@ const InputField = forwardRef<HTMLLabelElement, InputFieldProps>(
     let ringClass: string;
 
     if (disabled) {
-      bgClass = "bg-transparent";
-      ringClass = "ring-border";
+      bgClass = "bg-muted";
+      ringClass = "ring-muted-foreground/20";
     } else if (error) {
       bgClass = isFocused
         ? "bg-card"
@@ -219,16 +219,19 @@ const InputField = forwardRef<HTMLLabelElement, InputFieldProps>(
             ringClass,
           )}
         >
-          {Icon && (
-            <Icon
-              size={16}
-              strokeWidth={labelActive ? 2 : 1.5}
-              className={cn(
-                "shrink-0 transition-[color,stroke-width] duration-80",
-                labelActive ? "text-foreground" : "text-muted-foreground",
-              )}
-            />
-          )}
+          {Icon &&
+            (typeof Icon === "function" ? (
+              <Icon
+                size={16}
+                strokeWidth={labelActive ? 2 : 1.5}
+                className={cn(
+                  "shrink-0 transition-[color,stroke-width] duration-80",
+                  labelActive ? "text-foreground" : "text-muted-foreground",
+                )}
+              />
+            ) : (
+              Icon
+            ))}
           <input
             type="text"
             value={value}
@@ -262,5 +265,5 @@ const InputField = forwardRef<HTMLLabelElement, InputFieldProps>(
 
 InputField.displayName = "InputField";
 
-export { InputGroup, InputField };
+export { InputField, InputGroup };
 export default InputGroup;

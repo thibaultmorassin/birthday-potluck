@@ -1,15 +1,16 @@
 "use client";
 
-import { useActionState, useEffect, useState, useTransition } from "react";
-import { Plus } from "lucide-react";
-import { toast } from "sonner";
 import { createProfile, selectProfile } from "@/app/actions";
-import { avatarUrl, displayName } from "@/lib/avatar";
+import { ResponsiveDialog } from "@/components/responsive-dialog";
 import { Button } from "@/components/ui/button";
 import { InputField, InputGroup } from "@/components/ui/input-group";
-import { ResponsiveDialog } from "@/components/responsive-dialog";
+import { displayName } from "@/lib/avatar";
 import { cn } from "@/lib/utils";
+import { ChevronRight, Plus } from "lucide-react";
+import { useActionState, useEffect, useState, useTransition } from "react";
+import { toast } from "sonner";
 import type { Tables } from "../../database.types";
+import { Avatar } from "./ui/avatar";
 
 interface ProfilePickerProps {
   users: Tables<"users">[];
@@ -34,7 +35,7 @@ export function ProfilePicker({ users }: ProfilePickerProps) {
 
   return (
     <>
-      <div className="grid w-full max-w-md grid-cols-3 gap-4 sm:grid-cols-4 md:max-w-2xl md:gap-6">
+      <div className="overflow-hidden rounded-xl border border-border bg-surface-2 shadow-surface-2">
         {users.map((user) => (
           <button
             key={user.id}
@@ -42,25 +43,30 @@ export function ProfilePicker({ users }: ProfilePickerProps) {
             onClick={() => pick(user.id)}
             disabled={pendingId !== null}
             className={cn(
-              "group flex cursor-pointer flex-col items-center gap-2 rounded-xl p-2 outline-none transition-opacity",
-              "hover:bg-hover focus-visible:ring-2 focus-visible:ring-ring",
+              "flex w-full cursor-pointer items-center gap-3 border-b border-border px-4 py-3 text-left outline-none transition-colors md:px-5 md:py-3.5",
+              "hover:bg-hover focus-visible:bg-hover",
               pendingId !== null && pendingId !== user.id && "opacity-40",
+              pendingId === user.id && "animate-pulse",
             )}
           >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={avatarUrl(user.email, 192)}
-              alt=""
-              width={96}
-              height={96}
-              className={cn(
-                "size-20 rounded-[20px] transition-transform group-hover:scale-105 md:size-24",
-                pendingId === user.id && "animate-pulse",
-              )}
+            <Avatar
+              name={user.email}
+              seedSize={96}
+              className="size-10 shrink-0 rounded-full md:size-11"
             />
-            <span className="max-w-full truncate text-[13px] text-muted-foreground group-hover:text-foreground md:text-[15px]">
-              {displayName(user.email)}
+            <span className="flex min-w-0 flex-col">
+              <span className="truncate text-[14px] font-medium md:text-[15px]">
+                {displayName(user.email)}
+              </span>
+              <span className="truncate text-[12px] text-muted-foreground md:text-[13px]">
+                {user.email}
+              </span>
             </span>
+            <ChevronRight
+              size={16}
+              className="ml-auto shrink-0 text-muted-foreground"
+              aria-hidden
+            />
           </button>
         ))}
 
@@ -68,12 +74,12 @@ export function ProfilePicker({ users }: ProfilePickerProps) {
           type="button"
           onClick={() => setAddOpen(true)}
           disabled={pendingId !== null}
-          className="group flex cursor-pointer flex-col items-center gap-2 rounded-xl p-2 outline-none hover:bg-hover focus-visible:ring-2 focus-visible:ring-ring"
+          className="flex w-full cursor-pointer items-center gap-3 px-4 py-3 text-left outline-none transition-colors hover:bg-hover focus-visible:bg-hover md:px-5 md:py-3.5"
         >
-          <span className="flex size-20 items-center justify-center rounded-[20px] border-2 border-dashed border-border text-muted-foreground transition-colors group-hover:border-foreground/30 group-hover:text-foreground md:size-24">
-            <Plus className="size-8" aria-hidden />
+          <span className="flex size-10 shrink-0 items-center justify-center rounded-full border border-dashed border-border text-muted-foreground md:size-11">
+            <Plus size={18} aria-hidden />
           </span>
-          <span className="text-[13px] text-muted-foreground group-hover:text-foreground md:text-[15px]">
+          <span className="text-[14px] font-medium text-muted-foreground md:text-[15px]">
             Nouveau profil
           </span>
         </button>
@@ -105,13 +111,12 @@ function NewProfileForm() {
   return (
     <form action={formAction} className="flex flex-col gap-5">
       <div className="flex items-center gap-4">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={avatarUrl(seed || "?", 128)}
-          alt=""
-          width={64}
-          height={64}
-          className="size-16 shrink-0 rounded-[16px]"
+        <Avatar
+          name={seed || "?"}
+          seedSize={128}
+          width={56}
+          height={56}
+          className="size-14 shrink-0 rounded-full"
         />
         <p className="text-[13px] text-muted-foreground">
           {seed.includes("@")

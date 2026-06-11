@@ -1,29 +1,30 @@
+/* eslint-disable react-hooks/refs */
 "use client";
 
+import { useProximityHover } from "@/hooks/use-proximity-hover";
+import { fontWeights } from "@/lib/font-weight";
+import type { IconComponent } from "@/lib/icon-context";
+import { useShape } from "@/lib/shape-context";
+import { springs } from "@/lib/springs";
+import { surfaceClasses } from "@/lib/surface-classes";
+import { useSurface } from "@/lib/surface-context";
+import { cn } from "@/lib/utils";
+import * as TabsPrimitive from "@radix-ui/react-tabs";
+import { AnimatePresence, motion } from "framer-motion";
 import {
-  useRef,
-  useState,
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  createContext,
-  useContext,
-  forwardRef,
   Children,
   cloneElement,
+  createContext,
+  forwardRef,
   isValidElement,
+  useCallback,
+  useContext,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
   type ComponentPropsWithoutRef,
 } from "react";
-import * as TabsPrimitive from "@radix-ui/react-tabs";
-import { motion, AnimatePresence } from "framer-motion";
-import type { IconComponent } from "@/lib/icon-context";
-import { cn } from "@/lib/utils";
-import { springs } from "@/lib/springs";
-import { fontWeights } from "@/lib/font-weight";
-import { useShape } from "@/lib/shape-context";
-import { useSurface } from "@/lib/surface-context";
-import { surfaceClasses } from "@/lib/surface-classes";
-import { useProximityHover } from "@/hooks/use-proximity-hover";
 
 /* ─────────────────────── Contexts ─────────────────────── */
 
@@ -33,7 +34,9 @@ interface TabsValueOrderContextValue {
   selectedValue: string | undefined;
 }
 
-const TabsValueOrderContext = createContext<TabsValueOrderContextValue | null>(null);
+const TabsValueOrderContext = createContext<TabsValueOrderContextValue | null>(
+  null,
+);
 
 interface TabsListContextValue {
   registerTab: (index: number, value: string, el: HTMLElement | null) => void;
@@ -53,11 +56,10 @@ function useTabsList() {
 
 /* ─────────────────────── Tabs (Root) ─────────────────────── */
 
-interface TabsProps
-  extends Omit<
-    ComponentPropsWithoutRef<typeof TabsPrimitive.Root>,
-    "onValueChange" | "onSelect"
-  > {
+interface TabsProps extends Omit<
+  ComponentPropsWithoutRef<typeof TabsPrimitive.Root>,
+  "onValueChange" | "onSelect"
+> {
   /** Controlled value (takes precedence over selectedIndex). */
   value?: string;
   /** Called when the active tab changes. */
@@ -79,12 +81,12 @@ const Tabs = forwardRef<HTMLDivElement, TabsProps>(
       children,
       ...props
     },
-    ref
+    ref,
   ) => {
     const [valueOrder, setValueOrder] = useState<string[]>([]);
-    const [uncontrolledValue, setUncontrolledValue] = useState<string | undefined>(
-      defaultValue
-    );
+    const [uncontrolledValue, setUncontrolledValue] = useState<
+      string | undefined
+    >(defaultValue);
     const updateValueOrder = useCallback((order: string[]) => {
       setValueOrder((current) => {
         if (
@@ -113,7 +115,7 @@ const Tabs = forwardRef<HTMLDivElement, TabsProps>(
           if (idx !== -1) onSelect(idx);
         }
       },
-      [onValueChange, onSelect, valueOrder]
+      [onValueChange, onSelect, valueOrder],
     );
 
     return (
@@ -136,7 +138,7 @@ const Tabs = forwardRef<HTMLDivElement, TabsProps>(
         </TabsPrimitive.Root>
       </TabsValueOrderContext.Provider>
     );
-  }
+  },
 );
 
 Tabs.displayName = "Tabs";
@@ -186,7 +188,7 @@ const TabsList = forwardRef<HTMLDivElement, TabsListProps>(
       (index: number, _value: string, el: HTMLElement | null) => {
         registerItem(index, el);
       },
-      [registerItem]
+      [registerItem],
     );
 
     // Measure on children change
@@ -209,7 +211,7 @@ const TabsList = forwardRef<HTMLDivElement, TabsListProps>(
         isMouseInside.current = true;
         handlers.onMouseMove(e);
       },
-      [handlers]
+      [handlers],
     );
 
     const handleMouseLeave = useCallback(() => {
@@ -224,6 +226,7 @@ const TabsList = forwardRef<HTMLDivElement, TabsListProps>(
       selectedValue !== undefined ? values.indexOf(selectedValue) : -1;
 
     useEffect(() => {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setOptimisticIdx(selectedIdx >= 0 ? selectedIdx : null);
     }, [selectedIdx]);
 
@@ -259,9 +262,8 @@ const TabsList = forwardRef<HTMLDivElement, TabsListProps>(
             ).current = node;
             if (typeof ref === "function") ref(node);
             else if (ref)
-              (
-                ref as React.MutableRefObject<HTMLDivElement | null>
-              ).current = node;
+              (ref as React.MutableRefObject<HTMLDivElement | null>).current =
+                node;
           }}
           onMouseMove={handleMouseMove}
           onMouseLeave={handleMouseLeave}
@@ -273,7 +275,9 @@ const TabsList = forwardRef<HTMLDivElement, TabsListProps>(
               const idx = Number(indexAttr);
               setHoveredIndex(idx);
               setFocusedIndex(
-                (e.target as HTMLElement).matches(":focus-visible") ? idx : null
+                (e.target as HTMLElement).matches(":focus-visible")
+                  ? idx
+                  : null,
               );
             }
           }}
@@ -286,7 +290,7 @@ const TabsList = forwardRef<HTMLDivElement, TabsListProps>(
           className={cn(
             "relative inline-flex items-center gap-0.5 p-1 select-none bg-muted",
             shape.container,
-            className
+            className,
           )}
           {...props}
         >
@@ -296,7 +300,7 @@ const TabsList = forwardRef<HTMLDivElement, TabsListProps>(
               className={cn(
                 "absolute pointer-events-none",
                 surfaceClasses(indicatorLevel),
-                shape.bg
+                shape.bg,
               )}
               initial={false}
               animate={{
@@ -319,7 +323,7 @@ const TabsList = forwardRef<HTMLDivElement, TabsListProps>(
               <motion.div
                 className={cn(
                   "absolute pointer-events-none bg-hover",
-                  shape.bg
+                  shape.bg,
                 )}
                 initial={{
                   left: selectedRect.left,
@@ -364,7 +368,7 @@ const TabsList = forwardRef<HTMLDivElement, TabsListProps>(
               <motion.div
                 className={cn(
                   "absolute pointer-events-none z-20 border border-[#6B97FF]",
-                  shape.focusRing
+                  shape.focusRing,
                 )}
                 initial={false}
                 animate={{
@@ -386,15 +390,16 @@ const TabsList = forwardRef<HTMLDivElement, TabsListProps>(
         </TabsPrimitive.List>
       </TabsListContext.Provider>
     );
-  }
+  },
 );
 
 TabsList.displayName = "TabsList";
 
 /* ─────────────────────── TabItem ─────────────────────── */
 
-interface TabItemProps
-  extends ComponentPropsWithoutRef<typeof TabsPrimitive.Trigger> {
+interface TabItemProps extends ComponentPropsWithoutRef<
+  typeof TabsPrimitive.Trigger
+> {
   /** Unique value for this tab. */
   value: string;
   /** Optional leading icon. */
@@ -408,7 +413,8 @@ interface TabItemProps
 const TabItem = forwardRef<HTMLButtonElement, TabItemProps>(
   ({ value, icon: Icon, label, _index = 0, className, ...props }, ref) => {
     const internalRef = useRef<HTMLButtonElement>(null);
-    const { registerTab, hoveredIndex, selectedValue, setOptimisticIdx } = useTabsList();
+    const { registerTab, hoveredIndex, selectedValue, setOptimisticIdx } =
+      useTabsList();
 
     useEffect(() => {
       registerTab(_index, value, internalRef.current);
@@ -427,15 +433,14 @@ const TabItem = forwardRef<HTMLButtonElement, TabItemProps>(
           ).current = node;
           if (typeof ref === "function") ref(node);
           else if (ref)
-            (
-              ref as React.MutableRefObject<HTMLButtonElement | null>
-            ).current = node;
+            (ref as React.MutableRefObject<HTMLButtonElement | null>).current =
+              node;
         }}
         value={value}
         data-proximity-index={_index}
         className={cn(
           "relative z-10 flex items-center gap-2 px-3 py-1.5 cursor-pointer bg-transparent border-none outline-none",
-          className
+          className,
         )}
         {...props}
       >
@@ -445,7 +450,7 @@ const TabItem = forwardRef<HTMLButtonElement, TabItemProps>(
             strokeWidth={isActive ? 2 : 1.5}
             className={cn(
               "transition-[color,stroke-width] duration-80",
-              isActive ? "text-foreground" : "text-muted-foreground"
+              isActive ? "text-foreground" : "text-muted-foreground",
             )}
           />
         )}
@@ -460,7 +465,7 @@ const TabItem = forwardRef<HTMLButtonElement, TabItemProps>(
           <span
             className={cn(
               "col-start-1 row-start-1 transition-[color,font-variation-settings] duration-80",
-              isActive ? "text-foreground" : "text-muted-foreground"
+              isActive ? "text-foreground" : "text-muted-foreground",
             )}
             style={{
               fontVariationSettings: isSelected
@@ -473,15 +478,16 @@ const TabItem = forwardRef<HTMLButtonElement, TabItemProps>(
         </span>
       </TabsPrimitive.Trigger>
     );
-  }
+  },
 );
 
 TabItem.displayName = "TabItem";
 
 /* ─────────────────────── TabPanel ─────────────────────── */
 
-interface TabPanelProps
-  extends ComponentPropsWithoutRef<typeof TabsPrimitive.Content> {
+interface TabPanelProps extends ComponentPropsWithoutRef<
+  typeof TabsPrimitive.Content
+> {
   /** Must match a TabItem value. */
   value: string;
 }
@@ -495,12 +501,12 @@ const TabPanel = forwardRef<HTMLDivElement, TabPanelProps>(
         {...props}
       />
     );
-  }
+  },
 );
 
 TabPanel.displayName = "TabPanel";
 
 /* ─────────────────────── Exports ─────────────────────── */
 
-export { Tabs, TabsList, TabItem, TabPanel };
-export type { TabsProps, TabsListProps, TabItemProps, TabPanelProps };
+export { TabItem, TabPanel, Tabs, TabsList };
+export type { TabItemProps, TabPanelProps, TabsListProps, TabsProps };

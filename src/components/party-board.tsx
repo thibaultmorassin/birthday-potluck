@@ -1,5 +1,6 @@
 "use client";
 
+import { deleteContribution } from "@/app/actions";
 import { ContributionForm } from "@/components/contribution-form";
 import { ResponsiveDialog } from "@/components/responsive-dialog";
 import {
@@ -23,11 +24,19 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { CATEGORIES } from "@/lib/categories";
-import { deleteContribution } from "@/app/actions";
+import { IconZoomExclamation } from "@tabler/icons-react";
 import { ArrowDown, ArrowUp, Pencil, Plus, Trash2 } from "lucide-react";
 import { useCallback, useMemo, useState, useTransition } from "react";
 import { toast } from "sonner";
 import { Enums, Tables } from "../../database.types";
+import { Avatar } from "./ui/avatar";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+} from "./ui/empty";
 import { TabItem, Tabs, TabsList } from "./ui/tabs";
 
 interface PartyBoardProps {
@@ -184,15 +193,13 @@ export function PartyBoard({
                   className={isMine ? "cursor-pointer" : undefined}
                   onClick={isMine ? () => setEditing(c) : undefined}
                 >
-                  <TableCell className="px-2 py-3 md:px-3 md:py-4">
-                    {c.guest_name}
-                    {isMine ? (
-                      <span className="ml-1.5 text-[11px] text-muted-foreground md:text-[12px]">
-                        (toi)
-                      </span>
-                    ) : null}
+                  <TableCell className="px-2 py-3 md:px-3 md:py-4 flex items-center gap-2">
+                    <Avatar name={c.guest_name} />
+                    {isMine ? "Moi" : c.guest_name}
                   </TableCell>
-                  <TableCell className="px-2 py-3 md:px-3 md:py-4">{c.item}</TableCell>
+                  <TableCell className="px-2 py-3 md:px-3 md:py-4">
+                    {c.item}
+                  </TableCell>
                   <TableCell className="px-2 py-3 md:px-3 md:py-4">
                     <Badge
                       color={categoryData.color}
@@ -244,11 +251,23 @@ export function PartyBoard({
           </TableBody>
         </Table>
       ) : (
-        <div className="rounded-xl border border-dashed border-border px-6 py-12 text-center text-[13px] text-muted-foreground md:py-16 md:text-[15px]">
-          {contributions.length === 0
-            ? "La liste est vide… sois le premier à ajouter ce que tu apportes ! 🎉"
-            : "Rien dans cette catégorie pour l'instant."}
-        </div>
+        <Empty className="rounded-xl border border-dashed border-border px-6 py-12 text-center text-[13px] text-muted-foreground md:py-16 md:text-[15px]">
+          <EmptyHeader className="max-w-md">
+            <EmptyMedia variant="icon">
+              <IconZoomExclamation />
+            </EmptyMedia>
+            <EmptyDescription>
+              {contributions.length === 0
+                ? "La liste est vide… sois le premier à ajouter ce que tu apportes ! 🎉"
+                : "Rien dans cette catégorie pour l'instant."}
+            </EmptyDescription>
+          </EmptyHeader>
+          <EmptyContent className="flex-row justify-center gap-2">
+            <Button leadingIcon={Plus} onClick={() => setAddOpen(true)}>
+              Ajouter une contribution
+            </Button>
+          </EmptyContent>
+        </Empty>
       )}
 
       <ResponsiveDialog
