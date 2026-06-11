@@ -4,7 +4,6 @@ import { createProfile, selectProfile } from "@/app/actions";
 import { ResponsiveDialog } from "@/components/responsive-dialog";
 import { Button } from "@/components/ui/button";
 import { InputField, InputGroup } from "@/components/ui/input-group";
-import { displayName } from "@/lib/avatar";
 import { cn } from "@/lib/utils";
 import { ChevronRight, Plus } from "lucide-react";
 import { useActionState, useEffect, useState, useTransition } from "react";
@@ -50,17 +49,12 @@ export function ProfilePicker({ users }: ProfilePickerProps) {
             )}
           >
             <Avatar
-              name={user.email}
+              name={user.name}
               seedSize={96}
               className="size-10 shrink-0 rounded-full md:size-11"
             />
-            <span className="flex min-w-0 flex-col">
-              <span className="truncate text-[14px] font-medium md:text-[15px]">
-                {displayName(user.email)}
-              </span>
-              <span className="truncate text-[12px] text-muted-foreground md:text-[13px]">
-                {user.email}
-              </span>
+            <span className="truncate text-[14px] font-medium md:text-[15px]">
+              {user.name}
             </span>
             <ChevronRight
               size={16}
@@ -89,7 +83,7 @@ export function ProfilePicker({ users }: ProfilePickerProps) {
         open={addOpen}
         onOpenChange={setAddOpen}
         title="Crée ton profil"
-        description="Ton email sert juste à te reconnaître — et à générer ta tête. 😄"
+        description="Juste ton prénom — il signera ce que tu apportes, et il génère ta tête. 😄"
       >
         <NewProfileForm />
       </ResponsiveDialog>
@@ -99,10 +93,10 @@ export function ProfilePicker({ users }: ProfilePickerProps) {
 
 function NewProfileForm() {
   const [state, formAction, pending] = useActionState(createProfile, null);
-  const [email, setEmail] = useState("");
+  const [name, setName] = useState("");
 
   // Live avatar preview while typing.
-  const seed = email.trim().toLowerCase();
+  const seed = name.trim();
 
   useEffect(() => {
     if (state && !state.ok) toast.error(state.error);
@@ -119,22 +113,21 @@ function NewProfileForm() {
           className="size-14 shrink-0 rounded-full"
         />
         <p className="text-[13px] text-muted-foreground">
-          {seed.includes("@")
-            ? `Salut ${displayName(seed)} !`
+          {seed
+            ? `Salut ${seed} !`
             : "Ton avatar apparaît ici au fil de la saisie."}
         </p>
       </div>
       <InputGroup>
         <InputField
           index={0}
-          name="email"
-          type="email"
-          label="Email"
-          placeholder="toi@exemple.com"
-          value={email}
-          onChange={setEmail}
-          autoComplete="email"
-          maxLength={254}
+          name="name"
+          label="Ton prénom"
+          placeholder="Marie, Lucas, Tonton Jacques…"
+          value={name}
+          onChange={setName}
+          autoComplete="given-name"
+          maxLength={80}
           required
         />
       </InputGroup>
@@ -146,7 +139,7 @@ function NewProfileForm() {
       <Button
         type="submit"
         loading={pending}
-        disabled={pending || !seed.includes("@")}
+        disabled={pending || !seed}
         className="w-full md:w-auto md:self-end"
       >
         C&apos;est moi !

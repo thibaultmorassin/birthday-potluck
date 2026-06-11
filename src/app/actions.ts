@@ -1,6 +1,5 @@
 "use server";
 
-import { displayName } from "@/lib/avatar";
 import {
   createSession,
   getProfileId,
@@ -65,26 +64,24 @@ export async function createProfile(
     return { ok: false, error: "Session expirée, recharge la page." };
   }
 
-  const email = String(formData.get("email") ?? "")
-    .trim()
-    .toLowerCase();
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 254) {
-    return { ok: false, error: "Entre un email valide." };
+  const name = String(formData.get("name") ?? "").trim();
+  if (!name || name.length > 80) {
+    return { ok: false, error: "Entre un prénom (80 caractères max)." };
   }
 
   const supabase = getSupabase();
-  // If the email is already registered, just reuse that profile.
+  // If the name is already taken (case-insensitive), just reuse that profile.
   const { data: existing } = await supabase
     .from("users")
     .select("id")
-    .eq("email", email)
+    .ilike("name", name)
     .maybeSingle();
 
   let userId = existing?.id;
   if (!userId) {
     const { data, error } = await supabase
       .from("users")
-      .insert({ email })
+      .insert({ name })
       .select("id")
       .single();
     if (error || !data) {
@@ -113,7 +110,7 @@ export async function saveContribution(
   const id = String(formData.get("id") ?? "").trim();
   const item = String(formData.get("item") ?? "").trim();
   const category = String(formData.get("category") ?? "");
-  const guestName = displayName(profile.email);
+  const guestName = profile.name;
 
   if (category !== "food" && category !== "drink") {
     return { ok: false, error: "Choisis une catégorie : à manger ou à boire." };

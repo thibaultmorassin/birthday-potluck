@@ -1,6 +1,5 @@
 import { PartyBoard } from "@/components/party-board";
 import { Avatar } from "@/components/ui/avatar";
-import { displayName } from "@/lib/avatar";
 import { getProfileId, isAuthenticated } from "@/lib/session";
 import { getSupabase } from "@/lib/supabase";
 import Link from "next/link";
@@ -34,7 +33,7 @@ export default async function HomePage() {
     throw new Error(`Failed to load contributions: ${error.message}`);
   }
 
-  const name = displayName(profile.email);
+  const name = profile.name;
 
   return (
     <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-8 md:px-8 md:py-16">
@@ -43,7 +42,7 @@ export default async function HomePage() {
           href="/profiles"
           className="group flex items-center gap-2 rounded-full border border-border py-1 pl-1 pr-3 text-[12px] text-muted-foreground transition-colors hover:bg-hover hover:text-foreground md:text-[13px]"
         >
-          <Avatar name={profile.email} seedSize={48} className="size-6 " />
+          <Avatar name={profile.name} seedSize={48} className="size-6 " />
           {name}
           <span className="text-muted-foreground/60 group-hover:text-muted-foreground">
             · changer

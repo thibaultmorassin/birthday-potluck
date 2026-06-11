@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "gen:types": "npx supabase gen types --lang=typescript --project-id \"$PROJECT_REF\" > database.types.ts"
   },
   "dependencies": {
     "@hugeicons/core-free-icons": "^4.2.0",

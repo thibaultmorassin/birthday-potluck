@@ -2,7 +2,7 @@
 
 create table if not exists public.users (
   id uuid primary key default gen_random_uuid(),
-  email text not null unique check (char_length(email) between 3 and 254),
+  name text not null unique check (char_length(name) between 1 and 80),
   created_at timestamptz not null default now()
 );
 
