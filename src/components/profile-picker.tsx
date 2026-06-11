@@ -123,7 +123,7 @@ function NewProfileForm() {
           index={0}
           name="name"
           label="Ton prénom"
-          placeholder="Marie, Lucas, Tonton Jacques…"
+          placeholder="Arnaud, Corinne, Jeff Tuches..."
           value={name}
           onChange={setName}
           autoComplete="given-name"
