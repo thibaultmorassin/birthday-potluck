@@ -138,7 +138,7 @@ export function PartyBoard({
   return (
     <div className="flex flex-col gap-4 md:gap-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <Tabs defaultValue={filter}>
+        <Tabs defaultValue={filter} className="overflow-x-auto">
           <TabsList>
             {filters.map((filter) => (
               <TabItem
