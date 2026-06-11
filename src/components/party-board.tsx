@@ -107,25 +107,23 @@ export function PartyBoard({
     });
   }, [contributions, filter, sortKey, sortDir]);
 
-  const counts = useMemo(
-    () => ({
-      all: contributions.length,
-      food: contributions.filter((c) => c.category === "food").length,
-      drink: contributions.filter((c) => c.category === "drink").length,
-    }),
-    [contributions],
-  );
+  const counts = useMemo(() => {
+    const byCategory = Object.fromEntries(
+      (Object.keys(CATEGORIES) as Enums<"contribution_category">[]).map(
+        (key) => [key, contributions.filter((c) => c.category === key).length],
+      ),
+    ) as Record<Enums<"contribution_category">, number>;
+    return { all: contributions.length, byCategory };
+  }, [contributions]);
 
   const filters: { key: Filter; label: string }[] = [
     { key: "all", label: `Tout (${counts.all})` },
-    {
-      key: "food",
-      label: `${CATEGORIES.food.emoji} ${CATEGORIES.food.label} (${counts.food})`,
-    },
-    {
-      key: "drink",
-      label: `${CATEGORIES.drink.emoji} ${CATEGORIES.drink.label} (${counts.drink})`,
-    },
+    ...(Object.keys(CATEGORIES) as Enums<"contribution_category">[]).map(
+      (key) => ({
+        key,
+        label: `${CATEGORIES[key].emoji} ${CATEGORIES[key].label} (${counts.byCategory[key]})`,
+      }),
+    ),
   ];
 
   const sortIndicator = (key: SortKey) =>

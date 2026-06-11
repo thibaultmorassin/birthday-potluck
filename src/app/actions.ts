@@ -10,7 +10,7 @@ import {
 import { getSupabase } from "@/lib/supabase";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import type { Tables } from "../../database.types";
+import { Constants, type Tables } from "../../database.types";
 
 export interface ActionState {
   ok: boolean;
@@ -112,8 +112,12 @@ export async function saveContribution(
   const category = String(formData.get("category") ?? "");
   const guestName = profile.name;
 
-  if (category !== "food" && category !== "drink") {
-    return { ok: false, error: "Choisis une catégorie : à manger ou à boire." };
+  if (
+    !(
+      Constants.public.Enums.contribution_category as readonly string[]
+    ).includes(category)
+  ) {
+    return { ok: false, error: "Choisis une catégorie valide." };
   }
   if (!item) {
     return { ok: false, error: "Dis-nous ce que tu apportes !" };

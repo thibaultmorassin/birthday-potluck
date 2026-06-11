@@ -40,31 +40,8 @@ export function ContributionForm({
       {contribution ? (
         <input type="hidden" name="id" value={contribution.id} />
       ) : null}
-      <fieldset className="flex flex-col gap-1">
-        <legend className="pl-3 pb-1 text-[13px] text-muted-foreground">
-          Catégorie
-        </legend>
-        <RadioGroup
-          selectedIndex={Object.keys(CATEGORIES).indexOf(category)}
-          className="max-w-1/2"
-        >
-          {(Object.keys(CATEGORIES) as Enums<"contribution_category">[]).map(
-            (key, i) => (
-              <RadioItem
-                key={key}
-                index={i}
-                label={`${CATEGORIES[key].emoji} ${CATEGORIES[key].label}`}
-                selected={category === key}
-                onSelect={() => setCategory(key)}
-              />
-            ),
-          )}
-        </RadioGroup>
-      </fieldset>
-      <input type="hidden" name="category" value={category} />
+
       <InputGroup>
-        {/* Auto-filled from the selected profile; the server derives the
-            name from the session anyway, this field is display-only. */}
         <InputField
           index={0}
           name="guest_name"
@@ -76,11 +53,33 @@ export function ContributionForm({
           className="opacity-70"
           icon={<Avatar name={guestName} />}
         />
+        <fieldset className="flex flex-col gap-1">
+          <legend className="pl-3 pb-1 text-[13px] text-muted-foreground">
+            Catégorie
+          </legend>
+          <RadioGroup
+            selectedIndex={Object.keys(CATEGORIES).indexOf(category)}
+            className="max-w-1/2"
+          >
+            {(Object.keys(CATEGORIES) as Enums<"contribution_category">[]).map(
+              (key, i) => (
+                <RadioItem
+                  key={key}
+                  index={i}
+                  label={`${CATEGORIES[key].emoji} ${CATEGORIES[key].label}`}
+                  selected={category === key}
+                  onSelect={() => setCategory(key)}
+                />
+              ),
+            )}
+          </RadioGroup>
+        </fieldset>
+        <input type="hidden" name="category" value={category} />
         <InputField
           index={1}
           name="item"
           label="Quoi ?"
-          placeholder="Tarte aux pommes, rosé, chips…"
+          placeholder="Quiche, rosé, verines…"
           value={item}
           onChange={setItem}
           maxLength={200}

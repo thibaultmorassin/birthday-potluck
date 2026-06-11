@@ -10,7 +10,7 @@ create table if not exists public.contributions (
   id uuid primary key default gen_random_uuid(),
   guest_name text not null check (char_length(guest_name) between 1 and 80),
   item text not null check (char_length(item) between 1 and 200),
-  category text not null default 'food' check (category in ('food', 'drink')),
+  category text not null default 'food' check (category in ('food', 'drink', 'other')),
   user_id uuid references public.users (id) on delete set null,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()

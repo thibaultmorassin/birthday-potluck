@@ -7,4 +7,5 @@ export const CATEGORIES: Record<
 > = {
   food: { label: "À manger", emoji: "🍰", color: "amber" },
   drink: { label: "À boire", emoji: "🍹", color: "blue" },
+  other: { label: "Autre", emoji: "🎯", color: "purple" },
 };
