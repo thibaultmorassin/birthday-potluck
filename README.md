@@ -20,8 +20,8 @@ Mobile-first, construit avec :
 4. Taper une ligne ouvre d'abord un `AlertDialog` de confirmation
    (« Modifier cette ligne ? »), puis le formulaire pré-rempli.
 
-Toute la base est accédée côté serveur avec la clé service role ; la table a
-RLS activé sans policy, donc la clé anon ne donne accès à rien.
+Toute la base est accédée côté serveur avec la clé publishable ; des policies
+RLS ouvrent select/insert/update (pas de delete) — semi-public, assumé.
 
 ## Setup
 
@@ -39,8 +39,11 @@ cp .env.example .env.local
 | Variable | Description |
 | --- | --- |
 | `NEXT_PUBLIC_SUPABASE_URL` | URL du projet (Settings → API) |
-| `SUPABASE_SERVICE_ROLE_KEY` | Clé service role (Settings → API, garde-la secrète) |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Clé publishable (Settings → API) |
 | `PARTY_PIN` | Le code à donner aux invités (défaut : `1234`) |
+
+Pour une base existante créée avant l'ajout des catégories, exécute
+[`supabase/migration-category-and-policies.sql`](supabase/migration-category-and-policies.sql).
 
 Changer `PARTY_PIN` invalide toutes les sessions existantes.
 

@@ -33,6 +33,11 @@ export async function saveContribution(
   const id = String(formData.get("id") ?? "").trim();
   const guestName = String(formData.get("guest_name") ?? "").trim();
   const item = String(formData.get("item") ?? "").trim();
+  const category = String(formData.get("category") ?? "");
+
+  if (category !== "food" && category !== "drink") {
+    return { ok: false, error: "Choisis une catégorie : à manger ou à boire." };
+  }
 
   if (!guestName || !item) {
     return { ok: false, error: "Il faut un nom et quelque chose à apporter !" };
@@ -48,12 +53,13 @@ export async function saveContribution(
         .update({
           guest_name: guestName,
           item,
+          category,
           updated_at: new Date().toISOString(),
         })
         .eq("id", id)
     : await supabase
         .from("contributions")
-        .insert({ guest_name: guestName, item });
+        .insert({ guest_name: guestName, item, category });
 
   if (error) {
     console.error("saveContribution failed:", error);
